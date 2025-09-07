@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block body %}
+<div class="container mx-auto px-4 py-10 max-w-6xl">
+  <div class="flex items-center justify-between mb-8">
+    <h2 class="text-3xl font-['Orbitron'] text-cyber capitalize">Port Service Scanning Results</h2>
+    <a href="{{ url_for('deep_scan') }}" class="btn-secondary">Back to Workflow</a>
+  </div>
+
+  {% if module_data.all_results %}
+    <div class="space-y-8">
+      <div class="bg-gray-900/80 p-4 rounded-2xl card-neon">
+        <h3 class="text-lg font-semibold text-cyber mb-3">Port Distribution</h3>
+        <canvas id="portChart" class="w-64 h-48 mx-auto"></canvas>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for res in module_data.all_results %}
+          <div class="bg-gray-900/80 border border-cyber/40 rounded-2xl p-6">
+            <p><span class="font-semibold text-cyber">IP:</span> {{ res.ip or 'N/A' }}</p>
+            <p><span class="font-semibold text-cyber">Org:</span> {{ res.org or 'N/A' }}</p>
+            {% if res.hostnames %}<p><span class="font-semibold text-cyber">Hostnames:</span> {{ res.hostnames | join(', ') }}</p>{% endif %}
+            {% if res.location %}<p><span class="font-semibold text-cyber">Location:</span> {{ res.location.city }}, {{ res.location.country_name }}</p>{% endif %}
+            <p><span class="font-semibold text-cyber">Open Ports:</span> {{ res.ports | join(', ') if res.ports else 'N/A' }}</p>
+            <p><span class="font-semibold text-cyber">Vulnerabilities:</span> {{ res.vulnerabilities | join(', ') if res.vulnerabilities else 'N/A' }}</p>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  {% else %}
+    <p class="text-white/70">No open ports found.</p>
+  {% endif %}
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const portCanvas = document.getElementById('portChart');
+  if (portCanvas) {
+    const data = {{ module_data.all_results | tojson | safe }};
+    const portCounts = {};
+    data.forEach(r => (r.ports || []).forEach(p => portCounts[p] = (portCounts[p] || 0) + 1));
+    new Chart(portCanvas.getContext('2d'), {
+      type: 'doughnut',
+      data: { labels: Object.keys(portCounts), datasets: [{ data: Object.values(portCounts) }] },
+      options: { plugins: { legend: { position: 'bottom' } } }
+    });
+  }
+</script>
+{% endblock %}

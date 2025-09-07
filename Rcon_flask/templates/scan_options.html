@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block body %}
+<div class="flex flex-col items-center justify-center min-h-screen text-center relative select-none px-6">
+
+  <!-- Title -->
+  <h1 class="text-4xl md:text-5xl font-['Orbitron'] font-bold text-cyber drop-shadow-[0_0_15px_rgba(29,196,165,0.8)] mb-3">
+    Select Scan Type
+  </h1>
+  <p class="text-gray-400 mb-12">Choose your Red Team reconnaissance approach</p>
+
+  <!-- Scan Options -->
+  <div class="grid md:grid-cols-2 gap-8 max-w-5xl w-full">
+
+    <!-- Light Scan -->
+    <div class="bg-gray-900/80 rounded-2xl p-8 shadow-[0_0_20px_rgba(29,196,165,0.3)] border border-cyber/40 text-left hover:scale-105 transition-transform">
+      <div class="flex items-center gap-3 mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-cyber" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+        </svg>
+        <h2 class="text-2xl font-semibold text-cyber">Light Scan</h2>
+      </div>
+      <p class="text-gray-400 mb-6">Fast & Minimal</p>
+      <ul class="text-left text-gray-300 space-y-2 mb-8">
+        <li>✔ Quick subdomain enumeration</li>
+        <li>✔ Basic port scanning</li>
+        <li>✔ SpiderFoot integration</li>
+        <li>✔ Minimal footprint</li>
+      </ul>
+      <a href="{{ url_for('light_scan') }}"
+         class="inline-flex items-center justify-center bg-cyber hover:bg-cyber/80 text-black font-semibold px-6 py-3 rounded-lg w-full shadow-[0_0_15px_rgba(29,196,165,0.6)] transition">
+        ⚡ Start Light Scan
+      </a>
+    </div>
+
+    <!-- Deep Scan -->
+    <div class="bg-gray-900/80 rounded-2xl p-8 shadow-[0_0_20px_rgba(29,196,165,0.3)] border border-cyber/40 text-left hover:scale-105 transition-transform">
+      <div class="flex items-center gap-3 mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-cyber" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+            d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/>
+        </svg>
+        <h2 class="text-2xl font-semibold text-cyber">Deep Scan</h2>
+      </div>
+      <p class="text-gray-400 mb-6">Comprehensive Analysis</p>
+      <ul class="text-left text-gray-300 space-y-2 mb-8">
+        <li>✔ Full subdomain discovery</li>
+        <li>✔ Comprehensive port scanning</li>
+        <li>✔ Public data scraping</li>
+        <li>✔ OSINT gathering</li>
+        <li>✔ Vulnerability assessment</li>
+        <li>✔ Report generation</li>
+      </ul>
+      <a href="{{ url_for('deep_scan') }}"
+         class="inline-flex items-center justify-center bg-cyber hover:bg-cyber/80 text-black font-semibold px-6 py-3 rounded-lg w-full shadow-[0_0_15px_rgba(29,196,165,0.6)] transition">
+        🔍 Start Deep Scan
+      </a>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

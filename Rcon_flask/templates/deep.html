@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block body %}
+<div class="container mx-auto px-4 py-10 max-w-5xl">
+  <div class="flex items-center justify-between">
+    <h2 class="text-3xl font-['Orbitron'] text-cyber">Deep Scan Workflow</h2>
+    <a href="{{ url_for('scan_options') }}" class="btn-secondary">Back</a>
+  </div>
+
+  <!-- FIXED upload form -->
+  <div class="mt-6">
+    <form action="{{ url_for('upload') }}?to=deep" method="post" enctype="multipart/form-data" class="flex items-center gap-3">
+      <input type="file" name="file" accept=".json" class="file-input">
+      <button class="btn-primary" type="submit">Load Results</button>
+    </form>
+  </div>
+
+  <div class="mt-8 space-y-5">
+    <a href="{{ url_for('module_page', slug='subdomain-discovery') }}" class="step-card">Subdomain Discovery</a>
+    <a href="{{ url_for('module_page', slug='port-service-scanning') }}" class="step-card">Port & Service Scanning</a>
+    <a href="{{ url_for('module_page', slug='public-data-scraping') }}" class="step-card">Public Data Scraping</a>
+    <a href="{{ url_for('module_page', slug='technology-profile-mapping') }}" class="step-card">Technology & Profile Mapping</a>
+    <a href="{{ url_for('module_page', slug='vulnerability-assessment') }}" class="step-card">Vulnerability Assessment</a>
+  </div>
+
+  <div class="mt-10 flex items-center justify-between">
+    {% if has_results %}
+      <p class="text-white/60">Results loaded. You can open each module page to review.</p>
+    {% else %}
+      <p class="text-white/60">Upload a JSON to enable module pages.</p>
+    {% endif %}
+    <a href="{{ url_for('report') }}" class="btn-primary inline-flex items-center gap-2">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
+        <path fill-rule="evenodd" d="M3 4.5A1.5 1.5 0 014.5 3h8.379a1.5 1.5 0 011.06.44l4.622 4.622a1.5 1.5 0 01.439 1.06V19.5A1.5 1.5 0 0117.5 21h-13A1.5 1.5 0 013 19.5v-15zM12 11.25a.75.75 0 00-1.5 0V15H8.25a.75.75 0 000 1.5H10.5v3a.75.75 0 001.5 0v-3h2.25a.75.75 0 000-1.5H12v-3.75z" clip-rule="evenodd" />
+      </svg>
+      Generate Report
+    </a>
+  </div>
+</div>
+{% endblock %}

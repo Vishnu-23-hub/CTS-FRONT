@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ title if title else "RECON TOOLKIT" }}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            cyber: "#1DC4A5",
+            deep: "#010205"
+          },
+          boxShadow: {
+            neon: "0 0 10px rgba(29,196,165,0.6), 0 0 20px rgba(29,196,165,0.4)",
+            neonStrong: "0 0 12px rgba(29,196,165,0.9), 0 0 24px rgba(29,196,165,0.7)",
+            neonRedBlue: "0 0 12px #ff0057, 0 0 24px #00f7ff, 0 0 36px #ff0057, 0 0 48px #00f7ff"
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
+  <script defer src="{{ url_for('static', filename='js/app.js') }}"></script>
+</head>
+<body class="min-h-screen bg-deep text-white font-['Inter']">
+  <!-- Background gradient -->
+  <div class="absolute inset-0 -z-10 pointer-events-none 
+              bg-[radial-gradient(circle_at_20%_20%,rgba(29,196,165,0.12),transparent_40%),radial-gradient(circle_at_80%_30%,rgba(29,196,165,0.12),transparent_40%)]">
+  </div>
+
+  {% block body %}{% endblock %}
+</body>
+</html>

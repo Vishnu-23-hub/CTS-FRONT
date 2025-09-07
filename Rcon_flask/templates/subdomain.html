@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% block body %}
+<div class="container mx-auto px-4 py-10 max-w-6xl">
+
+  <!-- Title -->
+  <div class="flex items-center justify-between mb-8">
+    <h2 class="text-3xl font-['Orbitron'] text-cyber capitalize">
+      {{ slug.replace('-', ' ') }} Results
+    </h2>
+    <a href="{{ url_for('deep_scan') }}" class="btn-secondary">Back to Workflow</a>
+  </div>
+
+  {% if module_data %}
+    <div class="space-y-8">
+      <!-- Top: Pie Chart -->
+      <div class="bg-gray-900/80 p-4 rounded-2xl card-neon">
+        <h3 class="text-lg font-semibold text-cyber mb-3">Subdomain Distribution</h3>
+        <canvas id="subdomainChart" class="w-64 h-48 mx-auto"></canvas>
+      </div>
+
+      <!-- Middle: Two big cards (buttons) -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div id="showAll"
+            class="cursor-pointer bg-gray-900/80 border border-cyber/40 rounded-2xl p-6 shadow-lg hover:bg-gray-800 transition">
+          <h2 class="text-2xl font-semibold text-cyber">Total Subdomains</h2>
+          <p class="mt-2 text-white text-lg">{{ module_data.subdomains_count }}</p>
+        </div>
+
+        <div id="showAlive"
+            class="cursor-pointer bg-gray-900/80 border border-green-500/40 rounded-2xl p-6 shadow-lg hover:bg-gray-800 transition">
+          <h2 class="text-2xl font-semibold text-green-400">Alive Subdomains</h2>
+          <p class="mt-2 text-white text-lg">{{ module_data.alive_count }}</p>
+        </div>
+      </div>
+
+      <!-- Bottom: Subdomain List -->
+      <div class="bg-gray-900/80 border border-cyber/40 rounded-2xl p-6 shadow-lg">
+        <h3 class="text-xl font-semibold text-cyber mb-4">Subdomain List</h3>
+        <ul id="subdomainList" class="text-white space-y-2">
+          {% set all_subs = (module_data.subdomains + module_data.alive) | unique %}
+          {% for sub in all_subs %}
+            <li data-alive="{{ (sub in module_data.alive) | string | lower }}"
+                class="p-2 rounded bg-gray-800">
+              <a href="{{ sub if sub.startswith('http') else 'http://' + sub }}"
+                  target="_blank"
+                  class="hover:underline">
+                  {{ sub }}
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  {% else %}
+    <p class="mt-6 text-white/60">No data available for this module yet.</p>
+  {% endif %}
+</div>
+
+<!-- Chart.js + toggle logic -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  // Subdomain Discovery Chart
+  const subCanvas = document.getElementById('subdomainChart');
+  if (subCanvas) {
+    const aliveCount = Number({{ module_data.alive_count | default(0) }});
+    const totalCount = Number({{ module_data.subdomains_count | default(0) }});
+    const deadCount = Math.max(0, totalCount - aliveCount);
+
+    new Chart(subCanvas.getContext('2d'), {
+      type: 'pie',
+      data: {
+        labels: ['Alive', 'Dead'],
+        datasets: [{
+          data: [aliveCount, deadCount],
+          backgroundColor: ['rgba(29,196,165,0.85)', 'rgba(239,68,68,0.75)'],
+          borderColor: ['rgba(29,196,165,1)', 'rgba(239,68,68,1)'],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { position: 'bottom', labels: { color: 'white', font: { size: 13 } } }
+        }
+      }
+    });
+
+    const showAllCard = document.getElementById("showAll");
+    const showAliveCard = document.getElementById("showAlive");
+    const listItems = document.querySelectorAll("#subdomainList li");
+
+    showAllCard.addEventListener("click", () => {
+      listItems.forEach(li => li.style.display = "block");
+    });
+
+    showAliveCard.addEventListener("click", () => {
+      listItems.forEach(li => {
+        const alive = (li.getAttribute("data-alive") || "false") === "true";
+        li.style.display = alive ? "block" : "none";
+      });
+    });
+  }
+</script>
+{% endblock %}

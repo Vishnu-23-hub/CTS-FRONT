@@ -1,0 +1,33 @@
+{
+  "subdomains": [
+    "dev.example.com",
+    "api.example.com"
+  ],
+  "ports": [
+    {
+      "host": "api.example.com",
+      "port": 80,
+      "service": "http"
+    },
+    {
+      "host": "api.example.com",
+      "port": 443,
+      "service": "https"
+    }
+  ],
+  "public_data": {
+    "emails": [
+      "security@example.com"
+    ],
+    "github_repos": [
+      "example/repo"
+    ]
+  },
+  "vulnerabilities": [
+    {
+      "target": "api.example.com",
+      "cve": "CVE-2024-1234",
+      "severity": "high"
+    }
+  ]
+}

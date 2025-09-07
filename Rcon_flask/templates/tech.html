@@ -1,0 +1,319 @@
+{% extends "base.html" %}
+{% block body %}
+<div class="container mx-auto px-4 py-10 max-w-6xl">
+
+  <!-- Title -->
+  <div class="flex items-center justify-between mb-8">
+    <h2 class="text-3xl font-['Orbitron'] text-cyber capitalize">
+      {{ slug.replace('-', ' ') }} Results
+    </h2>
+    <a href="{{ url_for('deep_scan') }}" class="btn-secondary">Back to Workflow</a>
+  </div>
+
+  {% if module_data %}
+  <div class="space-y-8">
+
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <!-- IP Ranges Card -->
+      <div id="ipRangeCard" class="cursor-pointer bg-gray-900/80 border border-cyber/40 rounded-2xl p-6 shadow-lg hover:bg-gray-800 transition">
+        <h2 class="text-xl font-semibold text-cyber">IP Ranges</h2>
+        <p class="mt-2 text-white text-lg">{{ module_data["ip_ranges_count"] }}</p>
+      </div>
+
+      <!-- S3 Buckets Card -->
+      <div id="s3BucketsCard" class="cursor-pointer bg-gray-900/80 border border-cyber/40 rounded-2xl p-6 shadow-lg hover:bg-gray-800 transition">
+        <h2 class="text-xl font-semibold text-cyber">S3 Buckets</h2>
+        <p class="mt-2 text-white text-lg">{{ module_data["s3_buckets_count"] }}</p>
+      </div>
+
+      <!-- CVE IDs Card -->
+      <div id="cveIdsCard" class="cursor-pointer bg-gray-900/80 border border-cyber/40 rounded-2xl p-6 shadow-lg hover:bg-gray-800 transition">
+        <h2 class="text-xl font-semibold text-cyber">CVE IDs</h2>
+        <p class="mt-2 text-white text-lg">{{ module_data["cve_ids_count"] }}</p>
+      </div>
+
+      <!-- Tech Stack Card -->
+      <div id="techStackCard" class="cursor-pointer bg-gray-900/80 border border-cyber/40 rounded-2xl p-6 shadow-lg hover:bg-gray-800 transition">
+        <h2 class="text-xl font-semibold text-cyber">Tech Stack</h2>
+        <p class="mt-2 text-white text-lg">{{ module_data["tech_stack_count"] }}</p>
+      </div>
+    </div>
+
+    <!-- Phishing Vector Card -->
+    <div id="phishingVectorCard" class="cursor-pointer bg-gray-900/80 border border-cyber/40 rounded-2xl p-6 shadow-lg hover:bg-gray-800 transition">
+      <h2 class="text-xl font-semibold text-cyber">Phishing Vector</h2>
+    </div>
+
+    <!-- Expandable Sections -->
+    <div id="techProfileDetails" class="space-y-6 mt-6">
+
+      {% if module_data["ip_ranges"] %}
+      <div id="ipRangeSection" class="hidden bg-gray-900/80 border border-cyber/40 rounded-2xl p-6">
+        <h3 class="text-xl font-semibold text-cyber mb-4">IP Ranges</h3>
+
+        <!-- Search Bar -->
+        <div class="mb-4">
+          <input
+            type="text"
+            id="ipRangeSearch"
+            placeholder="Search by IP, NetRange, or CIDR..."
+            class="w-full p-2 rounded bg-gray-800 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-cyber"
+          />
+        </div>
+
+        <!-- Table -->
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-white border border-cyber/40 rounded-lg" id="ipRangeTable">
+            <thead class="bg-gray-800 text-cyber">
+              <tr>
+                <th class="p-3">IP</th>
+                <th class="p-3">NetRange</th>
+                <th class="p-3">CIDR</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-700">
+              {% for entry in module_data["ip_ranges"] %}
+              <tr class="hover:bg-gray-800/60">
+                <td class="p-3">{{ entry.ip }}</td>
+                <td class="p-3">{{ entry.netrange }}</td>
+                <td class="p-3">{{ entry.cidr }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Bar Graph by IP Class -->
+        <div class="mt-6 bg-gray-900/80 border border-cyber/40 rounded-2xl p-6">
+          <h3 class="text-xl font-semibold text-cyber mb-4">IP Class Distribution</h3>
+          <canvas id="ipClassBarChart" class="w-full h-40"></canvas>
+        </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script>
+        document.addEventListener("DOMContentLoaded", () => {
+          const ctx = document.getElementById('ipClassBarChart').getContext('2d');
+          const ipData = {{ module_data["ip_ranges"] | tojson }};
+          const classCounts = { A: 0, B: 0, C: 0, D: 0, E: 0 };
+
+          ipData.forEach(entry => {
+            const ip = entry.ip;
+            const firstOctet = parseInt(ip.split('.')[0]);
+            if(firstOctet >=1 && firstOctet <= 126) classCounts.A++;
+            else if(firstOctet >=128 && firstOctet <=191) classCounts.B++;
+            else if(firstOctet >=192 && firstOctet <=223) classCounts.C++;
+            else if(firstOctet >=224 && firstOctet <=239) classCounts.D++;
+            else if(firstOctet >=240 && firstOctet <=254) classCounts.E++;
+          });
+
+          new Chart(ctx, {
+            type: 'bar',
+            data: {
+              labels: Object.keys(classCounts),
+              datasets: [{
+                label: 'Number of IPs',
+                data: Object.values(classCounts),
+                backgroundColor: 'rgba(34,197,94,0.7)',
+                borderColor: 'rgba(34,197,94,1)',
+                borderWidth: 1
+              }]
+            },
+            options: {
+              responsive: true,
+              plugins: { legend: { display: false }, tooltip: { enabled: true } },
+              scales: {
+                y: { beginAtZero: true, title: { display: true, text: 'Count', color: 'white' }, ticks: { color: 'white' } },
+                x: { title: { display: true, text: 'IP Class', color: 'white' }, ticks: { color: 'white' } }
+              }
+            }
+          });
+        });
+        </script>
+      </div>
+      {% endif %}
+
+      {% if module_data["s3_buckets"] %}
+      <div id="s3BucketsSection" class="hidden bg-gray-900/80 border border-cyber/40 rounded-2xl p-6 mt-6">
+        <h3 class="text-xl font-semibold text-cyber mb-4">S3 Buckets</h3>
+        <div class="space-y-6">
+          {% for s3 in module_data["s3_buckets"] %}
+          <div class="bg-gray-800/80 border border-gray-700 rounded-xl p-4 shadow">
+            <p class="text-cyber font-semibold">URL:</p>
+            <p class="text-white break-all">
+              <a href="{{ s3.url }}" target="_blank" class="text-blue-400 hover:underline">{{ s3.url }}</a>
+            </p>
+            <p class="text-cyber font-semibold mt-2">Bucket:</p>
+            <p class="text-white">{{ s3.bucket }}</p>
+            <p class="text-cyber font-semibold mt-2">Key:</p>
+            <p class="text-white break-all">{{ s3.key }}</p>
+            <p class="text-cyber font-semibold mt-2">Permissions:</p>
+            <p class="text-white">Read: {{ "✅" if s3.read else "❌" }} | Write: {{ "✅" if s3.write else "❌" }}</p>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      {% if module_data.cve_ids %}
+      <div id="cveIdsSection" class="hidden bg-gray-900/80 border border-cyber/40 rounded-2xl p-6">
+        <h3 class="text-xl font-semibold text-cyber mb-4">CVE IDs</h3>
+        <ul class="space-y-2 text-white">
+          {% for cve in module_data.cve_ids %}
+          <li class="bg-gray-800 p-2 rounded">{{ cve }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+
+      {% if module_data["tech_stack"] %}
+      <div id="techStackSection" class="hidden bg-gray-900/80 border border-cyber/40 rounded-2xl p-6">
+        <h3 class="text-xl font-semibold text-cyber mb-4">Tech Stack</h3>
+        <ul class="space-y-2 text-white">
+          {% for tech in module_data["tech_stack"] %}
+          <li class="bg-gray-800 p-2 rounded">{{ tech }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+{% if module_data["phishing_vectors"] %}
+<div id="phishingVectorSection" class="hidden bg-gray-900/80 border border-cyber/40 rounded-2xl p-6 mt-6">
+  <h3 class="text-xl font-semibold text-cyber mb-4">Phishing Vector</h3>
+
+  {# ================= EMAIL SECURITY ================= #}
+  {% set emailsec = module_data["phishing_vectors"]["emailsecurity"] %}
+  {% if emailsec %}
+  <div id="emailSecuritySection" class="mt-6 p-4 border rounded-lg bg-gray-900 shadow">
+    <h3 class="text-xl font-semibold mb-4 text-cyan-400">Email Security</h3>
+
+    <!-- SPF -->
+    {% if emailsec["spf"] %}
+      {% for spf in emailsec["spf"] %}
+        <div class="mb-2">
+          <p>SPF: Status: 
+            <span class="{{ 'text-green-500' if spf['status'] == 'secure' else 'text-red-500' }}">
+              {{ spf['status'] }}
+            </span>
+          </p>
+          <p>SPF: Detail: {{ spf['detail'] }}</p>
+        </div>
+      {% endfor %}
+    {% else %}
+      <p class="text-gray-400">No SPF records found.</p>
+    {% endif %}
+
+    <!-- DMARC -->
+    {% if emailsec["dmarc"] %}
+      {% for dmarc in emailsec["dmarc"] %}
+        <div class="mb-2">
+          <p>DMARC: Status: 
+            <span class="{{ 'text-green-500' if dmarc['status'] == 'secure' else 'text-red-500' }}">
+              {{ dmarc['status'] }}
+            </span>
+            (Main Policy: {{ dmarc['main_policy'] }}, Sub Policy: {{ dmarc['sub_policy'] }})
+          </p>
+          <p>Full Record: {{ dmarc['full_record'] }}</p>
+        </div>
+      {% endfor %}
+    {% else %}
+      <p class="text-gray-400">No DMARC records found.</p>
+    {% endif %}
+
+    <!-- DKIM -->
+    {% if emailsec["dkim"] %}
+      {% for dkim in emailsec["dkim"] %}
+        <div class="mb-2">
+          <p>DKIM (Selector: {{ dkim['selector'] }}): Status: 
+            <span class="{{ 'text-green-500' if dkim['status'] == 'secure' else 'text-red-500' }}">
+              {{ dkim['status'] }}
+            </span>
+          </p>
+          <p>Selector: {{ dkim['selector'] }}</p>
+          <p>Record: {{ dkim['record'] }}</p>
+        </div>
+      {% endfor %}
+    {% else %}
+      <p class="text-gray-400">No DKIM records found.</p>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  {# ================= CLICKJACKING ================= #}
+  {% set clickjacking = module_data["phishing_vectors"]["clickjacking"] %}
+  {% if clickjacking %}
+    <div class="sub-card mb-2 border p-3 rounded cursor-pointer" data-target="clickjackingSection">
+      <strong>Clickjacking</strong>
+    </div>
+    <div id="clickjackingSection" class="sub-card-body hidden p-2 border-l border-gray-300">
+      {% for item in clickjacking %}
+        <div class="border border-gray-700 rounded-lg p-3 mb-2">
+          <p><strong>Link:</strong> 
+            <a href="{{ item['url'] }}" target="_blank" class="text-blue-400 hover:underline">{{ item['url'] }}</a>
+          </p>
+          <p><strong>Status:</strong> 
+            <span class="{{ 'text-green-400 font-semibold' if item['status'] == 'SAFE' else 'text-red-400 font-semibold' }}">
+              {{ item['status'] }}
+            </span>
+          </p>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+</div>
+{% endif %}
+
+     <!-- Toggle sections on card click -->
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  // === Main cards -> show their section ===
+  const mainCards = [
+    { id: "ipRangeCard", section: "ipRangeSection" },
+    { id: "s3BucketsCard", section: "s3BucketsSection" },
+    { id: "cveIdsCard", section: "cveIdsSection" },
+    { id: "techStackCard", section: "techStackSection" },
+    { id: "phishingVectorCard", section: "phishingVectorSection" }
+  ];
+
+  mainCards.forEach(({ id, section }) => {
+    const card = document.getElementById(id);
+    if (card) {
+      card.addEventListener("click", () => {
+        // Hide all main sections
+        mainCards.forEach(({ section }) => {
+          const el = document.getElementById(section);
+          if (el) el.classList.add("hidden");
+        });
+
+        // Show the clicked section
+        const target = document.getElementById(section);
+        if (target) {
+          target.classList.remove("hidden");
+          window.scrollTo({ top: target.offsetTop - 100, behavior: 'smooth' });
+        }
+      });
+    }
+  });
+
+  // === Sub-cards inside phishing vector ===
+  document.querySelectorAll("#phishingVectorSection .sub-card").forEach(card => {
+    card.addEventListener("click", (e) => {
+      e.stopPropagation(); // 🚀 prevent triggering main card handler
+      const targetId = card.getAttribute("data-target");
+      const targetEl = document.getElementById(targetId);
+      if (targetEl) {
+        targetEl.classList.toggle("hidden");
+      }
+    });
+  });
+});
+</script>
+
+
+  {% else %}
+    <p class="mt-6 text-white/60">No data available for this module yet.</p>
+  {% endif %}
+
+</div>
+{% endblock %}
+

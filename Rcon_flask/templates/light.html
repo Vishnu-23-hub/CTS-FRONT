@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block body %}
+<div class="container mx-auto px-4 py-10 max-w-6xl">
+  <div class="flex items-center justify-between">
+    <h2 class="text-3xl font-['Orbitron'] text-cyber">Light Scan</h2>
+    <a href="{{ url_for('scan_options') }}" class="btn-secondary">Back</a>
+  </div>
+
+  {% if spiderfoot_url %}
+    <div class="mt-8">
+      <p class="text-white/70 mb-2">
+        Connected to SpiderFoot at <span class="text-cyber">{{ spiderfoot_url }}</span>
+      </p>
+      <iframe src="{{ spiderfoot_url }}" 
+              class="w-full h-[70vh] rounded-2xl border border-cyber/40 shadow-neon"></iframe>
+    </div>
+  {% else %}
+    <div class="mt-8">
+      <p class="text-white/70">
+        No SpiderFoot instance detected.<br>
+        Make sure backend saved 
+        <code>spiderfoot_url.txt</code> inside 
+        <span class="text-cyber">backend/output/</span>.
+      </p>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

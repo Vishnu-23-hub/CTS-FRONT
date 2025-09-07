@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block body %}
+<div class="flex flex-col items-center justify-center min-h-screen text-center relative select-none">
+
+  <!-- Faint grid background -->
+  <div class="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:40px_40px]"></div>
+
+  <!-- Shield Icon -->
+  <div class="mb-6 relative z-10">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-cyber drop-shadow-[0_0_12px_rgba(29,196,165,0.8)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+        d="M12 3l7.5 3v6c0 5.25-3.75 10-7.5 11-3.75-1-7.5-5.75-7.5-11V6l7.5-3z"/>
+    </svg>
+  </div>
+
+  <!-- Title -->
+  <h1 class="relative z-10 text-6xl md:text-7xl font-['Orbitron'] font-extrabold tracking-wider text-cyber drop-shadow-[0_0_20px_rgba(29,196,165,0.9)] mb-4">
+    RECON TOOLKIT
+  </h1>
+
+  <!-- Subtitle -->
+  <p class="relative z-10 text-white/70 text-lg md:text-xl mb-10">
+    Advanced Red Team reconnaissance and intelligence<br>
+    gathering platform
+  </p>
+
+  <!-- Button -->
+  <a href="{{ url_for('scan_options') }}"
+     class="relative z-10 bg-cyber hover:bg-cyber/80 text-black font-semibold px-8 py-3 rounded-full text-lg shadow-[0_0_20px_rgba(29,196,165,0.9)] transition">
+    Begin Reconnaissance →
+  </a>
+</div>
+{% endblock %}

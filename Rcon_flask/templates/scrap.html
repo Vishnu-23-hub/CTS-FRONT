@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+{% block body %}
+<div class="container mx-auto px-4 py-10 max-w-6xl">
+
+  <!-- Title -->
+  <div class="flex items-center justify-between mb-8">
+    <h2 class="text-3xl font-['Orbitron'] text-cyber capitalize">
+      {{ slug.replace('-', ' ') }} Results
+    </h2>
+    <a href="{{ url_for('deep_scan') }}" class="btn-secondary">Back to Workflow</a>
+  </div>
+
+  {% if module_data %}
+    <div class="space-y-8">
+      <!-- Summary Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+        <div id="emailsCard" class="cursor-pointer bg-gray-900/80 border border-cyber/40 rounded-2xl p-6 shadow-lg hover:bg-gray-800 transition">
+          <h2 class="text-xl font-semibold text-cyber">Emails</h2>
+          <p class="mt-2 text-white text-lg">{{ module_data.emails | length }}</p>
+        </div>
+
+        <div id="phonesCard" class="cursor-pointer bg-gray-900/80 border border-cyber/40 rounded-2xl p-6 shadow-lg hover:bg-gray-800 transition">
+          <h2 class="text-xl font-semibold text-cyber">Phones</h2>
+          <p class="mt-2 text-white text-lg">{{ module_data.phones | length }}</p>
+        </div>
+
+        <div id="usernamesCard" class="cursor-pointer bg-gray-900/80 border border-cyber/40 rounded-2xl p-6 shadow-lg hover:bg-gray-800 transition">
+          <h2 class="text-xl font-semibold text-cyber">Usernames</h2>
+          <p class="mt-2 text-white text-lg">{{ module_data.usernames | length }}</p>
+        </div>
+
+        <div id="passwordsCard" class="cursor-pointer bg-gray-900/80 border border-cyber/40 rounded-2xl p-6 shadow-lg hover:bg-gray-800 transition">
+          <h2 class="text-xl font-semibold text-cyber">Passwords</h2>
+          <p class="mt-2 text-white text-lg">{{ module_data.passwords | length }}</p>
+        </div>
+
+        <div id="secretsCard" class="cursor-pointer bg-gray-900/80 border border-cyber/40 rounded-2xl p-6 shadow-lg hover:bg-gray-800 transition">
+          <h2 class="text-xl font-semibold text-cyber">Secrets</h2>
+          <p class="mt-2 text-white text-lg">{{ module_data.secrets | length }}</p>
+        </div>
+      </div>
+
+      <!-- ✅ New Pie Chart for Public Data -->
+      <div class="bg-gray-900/80 p-6 rounded-2xl shadow-md mt-8">
+        <h3 class="text-xl font-semibold text-cyber mb-4">Data Distribution</h3>
+        <canvas id="publicDataChart" class="w-64 h-48 mx-auto"></canvas>
+      </div>
+
+      <!-- Expandable Details (Accordion style) -->
+      <div id="scrapingDetails" class="space-y-6">
+        {% if module_data.emails %}
+        <div id="emailsSection" class="hidden bg-gray-900/80 border border-cyber/40 rounded-2xl p-6">
+          <h3 class="text-xl font-semibold text-cyber mb-4">Emails</h3>
+          <ul class="space-y-2 text-white">
+            {% for e in module_data.emails %}
+            <li class="bg-gray-800 p-2 rounded">{{ e }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% endif %}
+
+        {% if module_data.phones %}
+        <div id="phonesSection" class="hidden bg-gray-900/80 border border-cyber/40 rounded-2xl p-6">
+          <h3 class="text-xl font-semibold text-cyber mb-4">Phones</h3>
+          <ul class="space-y-2 text-white">
+            {% for p in module_data.phones %}
+            <li class="bg-gray-800 p-2 rounded">{{ p }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% endif %}
+
+        {% if module_data.usernames %}
+        <div id="usernamesSection" class="hidden bg-gray-900/80 border border-cyber/40 rounded-2xl p-6">
+          <h3 class="text-xl font-semibold text-cyber mb-4">Usernames</h3>
+          <ul class="space-y-2 text-white">
+            {% for u in module_data.usernames %}
+            <li class="bg-gray-800 p-2 rounded">{{ u }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% endif %}
+
+        {% if module_data.passwords %}
+        <div id="passwordsSection" class="hidden bg-gray-900/80 border border-cyber/40 rounded-2xl p-6">
+          <h3 class="text-xl font-semibold text-cyber mb-4">Passwords</h3>
+          <ul class="space-y-2 text-white">
+            {% for pw in module_data.passwords %}
+            <li class="bg-gray-800 p-2 rounded">
+              <p class="font-semibold">{{ pw.password }}</p>
+              <p class="text-xs text-gray-400">Source: {{ pw.source }}</p>
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% endif %}
+
+        {% if module_data.secrets %}
+        <div id="secretsSection" class="hidden bg-gray-900/80 border border-cyber/40 rounded-2xl p-6">
+          <h3 class="text-xl font-semibold text-cyber mb-4">Secrets</h3>
+          <ul class="space-y-2 text-white">
+            {% for s in module_data.secrets %}
+            <li class="bg-gray-800 p-2 rounded">
+              <p><span class="font-semibold text-cyber">{{ s.type }}</span>: {{ s.value }}</p>
+              <p class="text-xs text-gray-400">Source: {{ s.source }}</p>
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <script>
+      const cards = [
+        { id: "emailsCard", section: "emailsSection" },
+        { id: "phonesCard", section: "phonesSection" },
+        { id: "usernamesCard", section: "usernamesSection" },
+        { id: "passwordsCard", section: "passwordsSection" },
+        { id: "secretsCard", section: "secretsSection" }
+      ];
+
+      cards.forEach(({ id, section }) => {
+        const card = document.getElementById(id);
+        if (card) {
+          card.addEventListener("click", () => {
+            cards.forEach(({ section }) => {
+              const el = document.getElementById(section);
+              if (el) el.classList.add("hidden");
+            });
+            const target = document.getElementById(section);
+            if (target) {
+              target.classList.remove("hidden");
+              window.scrollTo({ top: target.offsetTop - 100, behavior: 'smooth' });
+            }
+          });
+        }
+      });
+    </script>
+
+  {% else %}
+    <p class="mt-6 text-white/60">No data available for this module yet.</p>
+  {% endif %}
+</div>
+
+<!-- ✅ Public Data Pie Chart -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const publicCanvas = document.getElementById('publicDataChart');
+  if (publicCanvas) {
+    const emailCount = {{ module_data.emails | length }};
+    const phoneCount = {{ module_data.phones | length }};
+    const usernameCount = {{ module_data.usernames | length }};
+    const passwordCount = {{ module_data.passwords | length }};
+    const secretCount = {{ module_data.secrets | length }};
+
+    new Chart(publicCanvas.getContext('2d'), {
+      type: 'pie',
+      data: {
+        labels: ['Emails', 'Phones', 'Usernames', 'Passwords', 'Secrets'],
+        datasets: [{
+          data: [emailCount, phoneCount, usernameCount, passwordCount, secretCount],
+          backgroundColor: [
+            'rgba(29,196,165,0.85)',
+            'rgba(59,130,246,0.85)',
+            'rgba(168,85,247,0.85)',
+            'rgba(250,204,21,0.85)',
+            'rgba(239,68,68,0.85)'
+          ],
+          borderColor: '#111827',
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { position: 'bottom', labels: { color: 'white', font: { size: 13 } } }
+        }
+      }
+    });
+  }
+</script>
+{% endblock %}

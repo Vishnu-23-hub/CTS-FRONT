@@ -1,0 +1,40 @@
+/* Neon cyber styles */
+.card, .step-card, .btn-primary, .btn-secondary {
+  transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+}
+.card:hover, .step-card:hover, .btn-primary:hover, .btn-secondary:hover {
+  transform: scale(1.03);
+  box-shadow: 0 0 10px rgba(29,196,165,0.6), 0 0 20px rgba(29,196,165,0.4);
+}
+.step-card {
+  display: block;
+  padding: 1.25rem 1.5rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(29,196,165,0.25);
+  color: white;
+  background: rgba(0,0,0,0.25);
+}
+.btn-primary {
+  background: #1DC4A5;
+  color: #010205;
+  padding: .6rem 1rem;
+  border-radius: .75rem;
+  font-weight: 600;
+}
+.btn-primary:active { box-shadow: 0 0 14px rgba(29,196,165,0.9); transform: scale(1.02); }
+.btn-secondary {
+  border: 1px solid rgba(29,196,165,0.4);
+  padding: .5rem .9rem;
+  border-radius: .75rem;
+  color: #1DC4A5;
+}
+.file-input {
+  background: rgba(0,0,0,0.35);
+  border: 1px solid rgba(29,196,165,0.4);
+  padding: .5rem .75rem;
+  border-radius: .5rem;
+}
+
+
+
+

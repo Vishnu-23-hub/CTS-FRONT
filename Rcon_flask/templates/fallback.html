@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block body %}
+<div class="container mx-auto px-4 py-10 max-w-6xl">
+
+  <!-- Title -->
+  <div class="flex items-center justify-between mb-8">
+    <h2 class="text-3xl font-['Orbitron'] text-cyber capitalize">
+      {{ slug.replace('-', ' ') }} Results
+    </h2>
+    <a href="{{ url_for('deep_scan') }}" class="btn-secondary">Back to Workflow</a>
+  </div>
+
+  {% if module_data %}
+    <div class="mt-6 rounded-2xl border border-cyber/30 shadow-neon p-4">
+      <pre class="text-white">{{ module_data | tojson(indent=2) }}</pre>
+    </div>
+  {% else %}
+    <p class="mt-6 text-white/60">No data available for this module yet.</p>
+  {% endif %}
+</div>
+{% endblock %}
